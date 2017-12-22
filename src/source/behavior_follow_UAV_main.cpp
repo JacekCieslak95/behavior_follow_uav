@@ -18,7 +18,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program. If not, see http://www.gnu.org/licenses/.
  ********************************************************************************/
-#include "../include/behavior_go_to_point_angle.h"
+#include "../include/behavior_follow_UAV.h"
 #include <boost/thread/thread.hpp>
 
 int main(int argc, char** argv){
@@ -26,7 +26,7 @@ int main(int argc, char** argv){
 
   std::cout << ros::this_node::getName() << std::endl;
 
-  BehaviorGoToPointAngle behavior;
+  BehaviorFollowUAV behavior;
   behavior.setUp();
   ros::Rate rate(10);
 

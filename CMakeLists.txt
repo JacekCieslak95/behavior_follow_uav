@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(behavior_follow_UAV)
 
 cmake_minimum_required(VERSION 2.8.3)
-project(behavior_go_to_point_angle)
+project(behavior_follow_UAV)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)

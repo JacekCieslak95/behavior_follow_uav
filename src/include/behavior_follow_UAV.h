@@ -61,6 +61,7 @@ private:
   std::string my_stack_directory;
   std::string behavior_name_str;
   std::string estimated_pose_str;
+  std::string estimated_leader_pose_str;
   std::string rotation_angles_str;
   std::string controllers_str;
   std::string estimated_speed_str;
@@ -76,15 +77,17 @@ private:
 
   //Subscriber
   ros::Subscriber estimated_pose_sub;
+  ros::Subscriber estimated_leader_pose_sub;
   ros::Subscriber estimated_speed_sub;
   ros::Subscriber rotation_angles_sub;
-  //add leaders IMU subscriber
+
   //Publisher
   ros::Publisher controllers_pub;
   ros::Publisher yaw_controller_pub;
   ros::Publisher drone_position_pub;
   ros::Publisher speed_topic_pub;
   ros::Publisher d_altitude_pub;
+
   //Service Clients
   ros::ServiceClient mode_service;
   ros::ServiceClient query_client;
@@ -93,11 +96,11 @@ private:
 
   //Message
   droneMsgsROS::dronePose estimated_pose_msg;
+  droneMsgsROS::dronePose estimated_leader_pose_msg;
   droneMsgsROS::dronePose target_position;
   droneMsgsROS::droneSpeeds estimated_speed_msg;
   droneMsgsROS::droneSpeeds setpoint_speed_msg;
   geometry_msgs::Vector3Stamped rotation_angles_msg;
-  //add leaders IMU postion
 
   bool is_finished;
   void ownSetUp();
@@ -114,6 +117,7 @@ private:
 
   //CallBacks
   void estimatedPoseCallBack(const droneMsgsROS::dronePose&);
+  void estimatedLeaderPoseCallBack(const droneMsgsROS::dronePose&);
   void estimatedSpeedCallback(const droneMsgsROS::droneSpeeds&);
   void rotationAnglesCallback(const geometry_msgs::Vector3Stamped&);
   //add leaders IMU callback

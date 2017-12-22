@@ -34,7 +34,6 @@ void BehaviorFollowUAV::ownSetUp(){
   node_handle.param<std::string>("drone_id_namespace", drone_id_namespace, "drone"+drone_id);
   node_handle.param<std::string>("my_stack_directory", my_stack_directory,
                                  "~/workspace/ros/quadrotor_stack_catkin/src/quadrotor_stack");
-
   node_handle.param<std::string>("estimated_pose_topic", estimated_pose_str, "estimated_pose");
   node_handle.param<std::string>("controllers_topic", controllers_str, "command/high_level");
   node_handle.param<std::string>("rotation_angles_topic", rotation_angles_str, "rotation_angles");
@@ -71,6 +70,8 @@ void BehaviorFollowUAV::ownStart(){
   //rotation_stop_client = node_handle.serviceClient<droneMsgsROS::StartBehavior>(rotation_stop_srv);
 
   /*
+   * topic of leader to follow (if leader is drone no. 1) : /drone1/estimated_pose
+   *
    * add subsribing leader's IMU position
    *
    *
@@ -109,6 +110,8 @@ void BehaviorFollowUAV::ownStart(){
     std::cout<<"Could not read speed. Default speed="<<speed<<std::endl;
   }
 
+  estimated_leader_pose_str = std::string("/drone") + std::to_string(leaderID) + std::string("/estimated_pose");
+  estimated_leader_pose_sub = node_handle.subscribe(estimated_leader_pose_str, 1000, &BehaviorFollowUAV::estimatedLeaderPoseCallBack, this);
   /*
    * read leaders IMU
    *
@@ -118,10 +121,14 @@ void BehaviorFollowUAV::ownStart(){
    *
    * send calculated speed
    */
-
+  std::cout << "Leader's current position:" << std::endl;
 }
 
 void BehaviorFollowUAV::ownRun(){
+  std::cout << '\r' << "x: " << estimated_leader_pose_msg.x
+                    << "y: " << estimated_leader_pose_msg.y
+                    << "z: " << estimated_leader_pose_msg.z
+                    << "yaw: " << estimated_leader_pose_msg.yaw;
   /*
    * calculate target position based on leader position
    *
@@ -177,7 +184,9 @@ void BehaviorFollowUAV::estimatedSpeedCallback(const droneMsgsROS::droneSpeeds& 
 void BehaviorFollowUAV::estimatedPoseCallBack(const droneMsgsROS::dronePose& msg){
   estimated_pose_msg=msg;
 }
+void BehaviorFollowUAV::estimatedLeaderPoseCallBack(const droneMsgsROS::dronePose& msg){
+  estimated_leader_pose_msg=msg;
+}
 void BehaviorFollowUAV::rotationAnglesCallback(const geometry_msgs::Vector3Stamped& msg){
   rotation_angles_msg=msg;
 }
-//add callback to leader's IMU

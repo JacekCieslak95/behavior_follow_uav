@@ -19,8 +19,8 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program. If not, see http://www.gnu.org/licenses/.
  ********************************************************************************/
-#ifndef GO_TO_POINT_ANGLE_H
-#define GO_TO_POINT_ANGLE_H
+#ifndef FOLLOW_UAV_H
+#define FOLLOW_UAV_H
 
 #include <string>
 #include <math.h>
@@ -48,10 +48,10 @@
 //Aerostack libraries
 #include <behavior_process.h>
 
-class BehaviorGoToPointAngle: public BehaviorProcess{
+class BehaviorFollowUAV: public BehaviorProcess{
 public:
-  BehaviorGoToPointAngle();
-  ~BehaviorGoToPointAngle();
+  BehaviorFollowUAV();
+  ~BehaviorFollowUAV();
 private:
   ros::NodeHandle node_handle;
 
@@ -78,17 +78,18 @@ private:
   ros::Subscriber estimated_pose_sub;
   ros::Subscriber estimated_speed_sub;
   ros::Subscriber rotation_angles_sub;
+  //add leaders IMU subscriber
   //Publisher
   ros::Publisher controllers_pub;
   ros::Publisher yaw_controller_pub;
   ros::Publisher drone_position_pub;
-  ros::Publisher  speed_topic_pub;
+  ros::Publisher speed_topic_pub;
   ros::Publisher d_altitude_pub;
   //Service Clients
   ros::ServiceClient mode_service;
   ros::ServiceClient query_client;
-  ros::ServiceClient rotation_start_client;
-  ros::ServiceClient rotation_stop_client;
+  //ros::ServiceClient rotation_start_client;
+  //ros::ServiceClient rotation_stop_client;
 
   //Message
   droneMsgsROS::dronePose estimated_pose_msg;
@@ -96,6 +97,7 @@ private:
   droneMsgsROS::droneSpeeds estimated_speed_msg;
   droneMsgsROS::droneSpeeds setpoint_speed_msg;
   geometry_msgs::Vector3Stamped rotation_angles_msg;
+  //add leaders IMU postion
 
   bool is_finished;
   void ownSetUp();
@@ -106,6 +108,7 @@ private:
   float angle;
   float speed;
   int state;
+  int leaderID;
 
   std::tuple<bool, std::string> ownCheckSituation();
 
@@ -113,6 +116,7 @@ private:
   void estimatedPoseCallBack(const droneMsgsROS::dronePose&);
   void estimatedSpeedCallback(const droneMsgsROS::droneSpeeds&);
   void rotationAnglesCallback(const geometry_msgs::Vector3Stamped&);
+  //add leaders IMU callback
 };
 
 #endif

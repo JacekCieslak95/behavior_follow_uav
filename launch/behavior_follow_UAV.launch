@@ -44,7 +44,7 @@
   <param name="drone_control_mode"                    value="$(arg drone_control_mode) " type="str"/>
   <param name="d_altitude"                            value="$(arg d_altitude) " type="str"/>
   <param name="consult_belief"                         value="$(arg consult_belief) " type="str"/>
-  <node name="behavior_go_to_point_angle" pkg="behavior_go_to_point_angle" type="behavior_go_to_point_angle" output="screen"/>
+  <node name="behavior_follow_UAV" pkg="behavior_follow_UAV" type="behavior_follow_UAV" output="screen"/>
 
   <!--<test test-name="SequencerTest" pkg="behavior_go_to_point_angle" type="SequencerTest"/>-->
 

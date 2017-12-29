@@ -120,7 +120,6 @@ private:
   void estimatedLeaderPoseCallBack(const droneMsgsROS::dronePose&);
   void estimatedSpeedCallback(const droneMsgsROS::droneSpeeds&);
   void rotationAnglesCallback(const geometry_msgs::Vector3Stamped&);
-  //add leaders IMU callback
 };
 
 #endif

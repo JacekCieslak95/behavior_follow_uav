@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(behavior_follow_UAV)
+project(behavior_follow_uav)
 
 cmake_minimum_required(VERSION 2.8.3)
-project(behavior_follow_UAV)
+project(behavior_follow_uav)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -21,12 +21,12 @@ set(BEHAVIOR_FOLLOW_UAV_INCLUDE_DIR
 
 # Files declaration
 set(BEHAVIOR_FOLLOW_UAV_SOURCE_FILES
-    ${BEHAVIOR_FOLLOW_UAV_SOURCE_DIR}/behavior_follow_UAV.cpp
-  ${BEHAVIOR_FOLLOW_UAV_SOURCE_DIR}/behavior_follow_UAV.cpp
+    ${BEHAVIOR_FOLLOW_UAV_SOURCE_DIR}/behavior_follow_uav.cpp
+  ${BEHAVIOR_FOLLOW_UAV_SOURCE_DIR}/behavior_follow_uav.cpp
 )
 
 set(BEHAVIOR_FOLLOW_UAV_HEADER_FILES
-  ${BEHAVIOR_FOLLOW_UAV_INCLUDE_DIR}/behavior_follow_UAV.h
+  ${BEHAVIOR_FOLLOW_UAV_INCLUDE_DIR}/behavior_follow_uav.h
 )
 
 ### Find catkin macros and libraries
@@ -69,16 +69,16 @@ include_directories(
     ${catkin_INCLUDE_DIRS}
 )
 
-add_library(behavior_follow_UAV_lib ${BEHAVIOR_FOLLOW_UAV_SOURCE_FILES} ${BEHAVIOR_FOLLOW_UAV_HEADER_FILES})
-add_dependencies(behavior_follow_UAV_lib ${catkin_EXPORTED_TARGETS})
-target_link_libraries(behavior_follow_UAV_lib ${catkin_LIBRARIES})
-target_link_libraries(behavior_follow_UAV_lib yaml-cpp)
+add_library(behavior_follow_uav_lib ${BEHAVIOR_FOLLOW_UAV_SOURCE_FILES} ${BEHAVIOR_FOLLOW_UAV_HEADER_FILES})
+add_dependencies(behavior_follow_uav_lib ${catkin_EXPORTED_TARGETS})
+target_link_libraries(behavior_follow_uav_lib ${catkin_LIBRARIES})
+target_link_libraries(behavior_follow_uav_lib yaml-cpp)
 
 
-add_executable(behavior_follow_UAV ${BEHAVIOR_FOLLOW_UAV_SOURCE_DIR}/behavior_follow_UAV_main.cpp)
-add_dependencies(behavior_follow_UAV ${catkin_EXPORTED_TARGETS})
-target_link_libraries(behavior_follow_UAV behavior_follow_UAV_lib)
-target_link_libraries(behavior_follow_UAV ${catkin_LIBRARIES})
+add_executable(behavior_follow_uav ${BEHAVIOR_FOLLOW_UAV_SOURCE_DIR}/behavior_follow_uav_main.cpp)
+add_dependencies(behavior_follow_uav ${catkin_EXPORTED_TARGETS})
+target_link_libraries(behavior_follow_uav behavior_follow_uav_lib)
+target_link_libraries(behavior_follow_uav ${catkin_LIBRARIES})
 
 #############
 ## Testing ##

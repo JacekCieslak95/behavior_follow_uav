@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>behavior_follow_UAV</name>
+  <name>behavior_follow_uav</name>
   <version>0.0.0</version>
-  <description>The behavior_follow_UAV package</description>
+  <description>The behavior_follow_uav package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->

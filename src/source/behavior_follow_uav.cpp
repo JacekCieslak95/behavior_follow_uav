@@ -17,7 +17,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program. If not, see http://www.gnu.org/licenses/.
  ********************************************************************************/
-#include "../include/behavior_follow_UAV.h"
+#include "../include/behavior_follow_uav.h"
 
 BehaviorFollowUAV::BehaviorFollowUAV(){
 
@@ -51,7 +51,6 @@ void BehaviorFollowUAV::ownSetUp(){
 }
 
 void BehaviorFollowUAV::ownStart(){
-
   is_finished = false;
   state = 0;
   std::cout << "ownStart" << std::endl;
@@ -98,8 +97,11 @@ void BehaviorFollowUAV::ownStart(){
     target_position.z = points[2];
   }
   else{
-    setStarted(false);
-    return;
+    target_position.x = 1;
+    target_position.y = 0;
+    target_position.z = 0;
+    //setStarted(false);
+    //return;
   }
   //get speed
   if(config_file["speed"].IsDefined()){
@@ -169,7 +171,9 @@ std::tuple<bool,std::string> BehaviorFollowUAV::ownCheckSituation()
   query_client.call(query_service);
   if(query_service.response.success)
   {
-    return std::make_tuple(false,"Error: Drone landed");
+    //Change it after tests!!!
+    return std::make_tuple(true,"Warning: Drone landed");
+    //return std::make_tuple(false,"Error: Drone landed");
     //return false;
   }
 

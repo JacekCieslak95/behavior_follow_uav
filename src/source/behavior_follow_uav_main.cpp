@@ -18,7 +18,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program. If not, see http://www.gnu.org/licenses/.
  ********************************************************************************/
-#include "../include/behavior_follow_UAV.h"
+#include "../include/behavior_follow_uav.h"
 #include <boost/thread/thread.hpp>
 
 int main(int argc, char** argv){

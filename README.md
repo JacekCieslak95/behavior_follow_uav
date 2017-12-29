@@ -11,30 +11,31 @@ Zachowanie umożliwiające podążanie za zadanym dronem (opierając się na jeg
     		    -CMakeLists.txt
                 -package.xml
                 -launch
-                    -behavior_follow_UAV.launch
+                    -behavior_follow_uav.launch
     			-src
                     -include
-                        -behavior_follow_UAV.h
+                        -behavior_follow_uav.h
                     -source
-                        -behavior_follow_UAV.cpp
-                        -behavior_follow_UAV_main.cpp
+                        -behavior_follow_uav.cpp
+                        -behavior_follow_uav_main.cpp
 
 2. Przeprowadzić kompilację catkin `~/workspace/ros/aerostack_catkin_ws/$ catkin_make`
 3. Edytować plik `simulated_quadrotor_basic.sh` - W skrypcie uruchamiającym należy dokleić na końcu poniższe linie:
     
 	    `#----------------------------------------------` \
-	    `# Behavior FollowUAAV                                   ` \
+	    `# Behavior FollowUAV                                   ` \
 	    `#----------------------------------------------` \
-	    --tab --title "Behavior FollowUAAV" --command "bash -c \"
-	    roslaunch behavior_follow_UAV behavior_follow_UAV.launch --wait \
+	    --tab --title "Behavior FollowUAV" --command "bash -c \"
+	    roslaunch behavior_follow_uav behavior_follow_uav.launch --wait \
     		drone_id_namespace:=drone$NUMID_DRONE \
     		drone_id:=$NUMID_DRONE \
     		my_stack_directory:=${AEROSTACK_STACK};
     	exec bash\"" \
     
-4. Edytować plik `behavior_catalog.yaml`. Plik znajduje się w lokalizacji: `~/workspace/ros/aerostack_catkin_ws/src/aerostack_stack/configs/drone1` 
+4. Edytować plik `behavior_catalog.yaml`. Plik znajduje się w lokalizacji: `~/workspace/ros/aerostack_catkin_ws/src/aerostack_stack/configs/droneX` 
     W sekcji `behavior_descriptors` należy dokleić poniższe linie:
-#### UWAGA! Nie testowałem tego, nie gwarantuję, że działa
+#### UWAGA! Należy to wkleić do folderu `configs/droneX` każdego drona, którego chcemy uruchamiać z danym zachowaniem.
+#### Np. Używając tego w dronach 1 i 2 poniższy fragment należy dokleić do `behavior_catalog.yaml` w folderach `configs/drone1` oraz `configs/drone2`
 	    
 		
           - behavior: FOLLOW_UAV
@@ -54,7 +55,7 @@ Zachowanie umożliwiające podążanie za zadanym dronem (opierając się na jeg
 ### Przyjmowane argumenty ###
 Behavior przyjmuje argumenty:
     
-    DroneID=x
+    droneID=x
     
 Jest to numer drona, za którym dron będzie podążał
     

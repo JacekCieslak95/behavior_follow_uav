@@ -92,14 +92,14 @@ void BehaviorFollowUAV::ownStart(){
   //get relative position to leader
   if(config_file["relative_position"].IsDefined()){
     std::vector<double> points = config_file["relative_position"].as<std::vector<double>>();
-    target_position.x = points[0];
-    target_position.y = points[1];
-    target_position.z = points[2];
+    relative_target_position.x = points[0];
+    relative_target_position.y = points[1];
+    relative_target_position.z = points[2];
   }
   else{
-    target_position.x = 1;
-    target_position.y = 0;
-    target_position.z = 0;
+    relative_target_position.x = -1;
+    relative_target_position.y = 0;
+    relative_target_position.z = 0;
     //setStarted(false);
     //return;
   }
@@ -108,32 +108,97 @@ void BehaviorFollowUAV::ownStart(){
     speed=config_file["speed"].as<float>();
   }
   else{
-    speed = 5;
+    speed = 3;
     std::cout<<"Could not read speed. Default speed="<<speed<<std::endl;
   }
 
   estimated_leader_pose_str = std::string("/drone") + std::to_string(leaderID) + std::string("/estimated_pose");
   estimated_leader_pose_sub = node_handle.subscribe(estimated_leader_pose_str, 1000, &BehaviorFollowUAV::estimatedLeaderPoseCallBack, this);
-  /*
-   * read leaders IMU
-   *
-   * calculate target position based on leader position
-   *
-   * calculate speeds based on target position
-   *
-   * send calculated speed
-   */
-  std::cout << "Leader's current position:" << std::endl;
+
+  //calculate target position for the first time
+  target_position.x = estimated_leader_pose_msg.x + relative_target_position.x * cos(estimated_leader_pose_msg.yaw);
+  target_position.y = estimated_leader_pose_msg.y + relative_target_position.y * sin(estimated_leader_pose_msg.yaw);
+  target_position.z = estimated_leader_pose_msg.z + relative_target_position.z;
+  target_position.yaw = estimated_leader_pose_msg.yaw;
+
+  //calculate setpoint speeds for the first time
+  distance = sqrt(pow(target_position.x-estimated_pose_msg.x,2)
+                         + pow(target_position.y-estimated_pose_msg.y,2));
+  //                       + pow(target_position.z-estimated_pose_msg.z,2));
+  setpoint_speed_msg.dx = speed * (target_position.x - estimated_pose_msg.x) / distance;
+  setpoint_speed_msg.dy = speed * (target_position.y - estimated_pose_msg.y) / distance;
+  setpoint_speed_msg.dz = 0;
+
+  //set SPEED_CONTROL mode and command MOVE
+  estimated_speed_msg = *ros::topic::waitForMessage<droneMsgsROS::droneSpeeds>(estimated_speed_str, node_handle, ros::Duration(2));
+  estimated_pose_msg = *ros::topic::waitForMessage<droneMsgsROS::dronePose>(estimated_pose_str, node_handle, ros::Duration(2));
+
+  droneMsgsROS::setControlMode mode;
+  mode.request.controlMode.command=mode.request.controlMode.SPEED_CONTROL;
+  mode_service.call(mode);
+
+  droneMsgsROS::droneSpeeds point;
+  point.dx=estimated_speed_msg.dx;
+  point.dy=estimated_speed_msg.dy;
+  point.dz=estimated_speed_msg.dz;
+  speed_topic_pub.publish(point);
+
+  ros::topic::waitForMessage<droneMsgsROS::droneTrajectoryControllerControlMode>(
+    drone_control_mode_str, node_handle
+  );
+
+  droneMsgsROS::droneSpeeds droneSpeed;
+  droneSpeed.dx=setpoint_speed_msg.dx;
+  droneSpeed.dy=setpoint_speed_msg.dy;
+  droneSpeed.dz=setpoint_speed_msg.dz;
+  speed_topic_pub.publish(droneSpeed);
+
+  droneMsgsROS::droneCommand msg;
+  msg.command = droneMsgsROS::droneCommand::MOVE;
+  controllers_pub.publish(msg);
+
+  estimated_speed_msg = *ros::topic::waitForMessage<droneMsgsROS::droneSpeeds>(estimated_speed_str, node_handle, ros::Duration(2));
+
 }
 
 void BehaviorFollowUAV::ownRun(){
-  std::cout << '\r' << "x: " << estimated_leader_pose_msg.x
-                    << "y: " << estimated_leader_pose_msg.y
-                    << "z: " << estimated_leader_pose_msg.z
-                    << "yaw: " << estimated_leader_pose_msg.yaw;
+
+  std::cout << "ownRun" << std::endl;
+  //calculate target position for the first time
+  target_position.x = estimated_leader_pose_msg.x + relative_target_position.x * cos(estimated_leader_pose_msg.yaw);
+  target_position.y = estimated_leader_pose_msg.y + relative_target_position.y * sin(estimated_leader_pose_msg.yaw);
+  target_position.z = estimated_leader_pose_msg.z + relative_target_position.z;
+  target_position.yaw = estimated_leader_pose_msg.yaw;
+
+  //calculate setpoint speeds for the first time
+  distance = sqrt(pow(target_position.x-estimated_pose_msg.x,2)
+                         + pow(target_position.y-estimated_pose_msg.y,2));
+  //                       + pow(target_position.z-estimated_pose_msg.z,2));
+  setpoint_speed_msg.dx = speed * (target_position.x - estimated_pose_msg.x) / distance;
+  setpoint_speed_msg.dy = speed * (target_position.y - estimated_pose_msg.y) / distance;
+  setpoint_speed_msg.dz = 0;
+
+  droneMsgsROS::droneSpeeds droneSpeed;
+  droneSpeed.dx=setpoint_speed_msg.dx;
+  droneSpeed.dy=setpoint_speed_msg.dy;
+  droneSpeed.dz=setpoint_speed_msg.dz;
+  speed_topic_pub.publish(droneSpeed);
+
+
+/*
+  std::cout << " x: " << estimated_leader_pose_msg.x
+            << " y: " << estimated_leader_pose_msg.y
+            << " z: " << estimated_leader_pose_msg.z
+            << " yaw: " << estimated_leader_pose_msg.yaw
+            << " xt: " << target_position.x
+            << " yt: " << target_position.y
+            << " zt: " << target_position.z
+            << " yawt: " << target_position.yaw << std::endl;
+*/
+
+
+
   /*
-   * calculate target position based on leader position
-   *
    * calculate speeds based on target position
    *
    * send calculated speed
@@ -172,8 +237,8 @@ std::tuple<bool,std::string> BehaviorFollowUAV::ownCheckSituation()
   if(query_service.response.success)
   {
     //Change it after tests!!!
-    return std::make_tuple(true,"Warning: Drone landed");
-    //return std::make_tuple(false,"Error: Drone landed");
+    //return std::make_tuple(true,"Warning: Drone landed");
+    return std::make_tuple(false,"Error: Drone landed");
     //return false;
   }
 

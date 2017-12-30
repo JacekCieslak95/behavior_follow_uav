@@ -1,6 +1,6 @@
 /*!*******************************************************************************************
- *  \file       behavior_follow_UAV.h
- *  \brief      behavior follow UAV definition file.
+ *  \file       behavior_follow_uav.h
+ *  \brief      behavior follow uav definition file.
  *  \details    This file contains the behaviorFollowUAV declaration. To obtain more information about
  *              it's definition consult the behavior_follow_UAV.cpp file.
  *  \authors    Jacek Cieślak
@@ -98,6 +98,7 @@ private:
   droneMsgsROS::dronePose estimated_pose_msg;
   droneMsgsROS::dronePose estimated_leader_pose_msg;
   droneMsgsROS::dronePose target_position;
+  droneMsgsROS::dronePose relative_target_position;
   droneMsgsROS::droneSpeeds estimated_speed_msg;
   droneMsgsROS::droneSpeeds setpoint_speed_msg;
   geometry_msgs::Vector3Stamped rotation_angles_msg;
@@ -110,6 +111,7 @@ private:
 
   float angle;
   float speed;
+  float distance;
   int state;
   int leaderID;
 

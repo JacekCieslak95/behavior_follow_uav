@@ -44,6 +44,7 @@ void BehaviorFollowUAV::ownSetUp(){
   node_handle.param<std::string>("speed_topic",speed_topic , "droneSpeedsRefs");
   node_handle.param<std::string>("drone_control_mode",drone_control_mode_str,"droneTrajectoryController/controlMode");
   node_handle.param<std::string>("d_altitude",d_altitude_str,"command/dAltitude");
+  node_handle.param<std::string>("d_yaw",d_yaw_str,"command/dYaw");
   node_handle.param<std::string>("consult_belief",execute_query_srv,"consult_belief");
   //node_handle.param<std::string>("behavior_rotate_start",rotation_start_srv,"behavior_rotate/start");
   //node_handle.param<std::string>("behavior_rotate_stop",rotation_stop_srv,"behavior_rotate/stop");
@@ -64,6 +65,7 @@ void BehaviorFollowUAV::ownStart(){
   drone_position_pub=node_handle.advertise< droneMsgsROS::dronePositionRefCommandStamped>(drone_position_str,1000);
   speed_topic_pub=node_handle.advertise<droneMsgsROS::droneSpeeds>(speed_topic,1000);
   d_altitude_pub = node_handle.advertise<droneMsgsROS::droneDAltitudeCmd>(d_altitude_str,1);
+  d_yaw_pub = node_handle.advertise<droneMsgsROS::droneDYawCmd>(d_yaw_str,1);
   query_client = node_handle.serviceClient <droneMsgsROS::ConsultBelief> (execute_query_srv);
   /*
    * Add rotation? in time of XY movement
@@ -159,7 +161,7 @@ void BehaviorFollowUAV::ownRun(){
   target_position.x = estimated_leader_pose_msg.x + relative_target_position.x * cos(estimated_leader_pose_msg.yaw) + relative_target_position.y * sin(estimated_leader_pose_msg.yaw);
   target_position.y = estimated_leader_pose_msg.y + relative_target_position.x * sin(estimated_leader_pose_msg.yaw) + relative_target_position.y * cos(estimated_leader_pose_msg.yaw);
   target_position.z = estimated_leader_pose_msg.z + relative_target_position.z;
-  target_position.yaw = estimated_leader_pose_msg.yaw;
+  target_position.yaw = fmod(estimated_leader_pose_msg.yaw + 2*M_PI, 2*M_PI);
 
   //calculate distance and speed
   distance = sqrt(pow(target_position.x-estimated_pose_msg.x,2)
@@ -169,6 +171,21 @@ void BehaviorFollowUAV::ownRun(){
   if (distance < 0.1) speed = 0.0;
   else if (distance > 5.0 ) speed = 5.0;
   else speed = 1.0 * distance;
+
+  float current_yaw = fmod(estimated_pose_msg.yaw + 2*M_PI, 2*M_PI);
+  float yaw_diff = fmod((target_position.yaw - current_yaw)+2*M_PI,2*M_PI);
+
+  droneMsgsROS::droneDYawCmd dronedYaw;
+
+  if(std::abs(yaw_diff) > 0.1 && std::abs(yaw_diff) < (2*M_PI - 0.1)){
+    dronedYaw.dYawCmd = fmod((yaw_diff/M_PI + 1),2)-1;
+    //calculate dYaw speed
+  }
+  else{
+    dronedYaw.dYawCmd = 0;
+  }
+
+  std::cout << "yaw_diff = " << yaw_diff << " dYawCmd = " << dronedYaw.dYawCmd << std::endl;
 
   //calculate setpoint speeds in xy for the first time
 

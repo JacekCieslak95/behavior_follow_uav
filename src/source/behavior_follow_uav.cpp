@@ -65,17 +65,9 @@ void BehaviorFollowUAV::ownStart(){
   speed_topic_pub=node_handle.advertise<droneMsgsROS::droneSpeeds>(speed_topic,1000);
   d_altitude_pub = node_handle.advertise<droneMsgsROS::droneDAltitudeCmd>(d_altitude_str,1);
   query_client = node_handle.serviceClient <droneMsgsROS::ConsultBelief> (execute_query_srv);
-  //rotation_start_client = node_handle.serviceClient<droneMsgsROS::StartBehavior>(rotation_start_srv);
-  //rotation_stop_client = node_handle.serviceClient<droneMsgsROS::StartBehavior>(rotation_stop_srv);
-
   /*
-   * topic of leader to follow (if leader is drone no. 1) : /drone1/estimated_pose
-   *
-   * add subsribing leader's IMU position
-   *
-   *
+   * Add rotation? in time of XY movement
    */
-
 
   //get arguments
   std::string arguments=getArguments();
@@ -103,14 +95,6 @@ void BehaviorFollowUAV::ownStart(){
     //setStarted(false);
     //return;
   }
-  //get speed
-  if(config_file["speed"].IsDefined()){
-    speed=config_file["speed"].as<float>();
-  }
-  else{
-    speed = 3;
-    std::cout<<"Could not read speed. Default speed="<<speed<<std::endl;
-  }
 
   estimated_leader_pose_str = std::string("/drone") + std::to_string(leaderID) + std::string("/estimated_pose");
   estimated_leader_pose_sub = node_handle.subscribe(estimated_leader_pose_str, 1000, &BehaviorFollowUAV::estimatedLeaderPoseCallBack, this);
@@ -121,10 +105,17 @@ void BehaviorFollowUAV::ownStart(){
   target_position.z = estimated_leader_pose_msg.z + relative_target_position.z;
   target_position.yaw = estimated_leader_pose_msg.yaw;
 
-  //calculate setpoint speeds for the first time
+  //calculate distance and speed
   distance = sqrt(pow(target_position.x-estimated_pose_msg.x,2)
                          + pow(target_position.y-estimated_pose_msg.y,2));
   //                       + pow(target_position.z-estimated_pose_msg.z,2));
+
+  if (distance < 0.1) speed = 0.0;
+  else if (distance > 5.0 ) speed = 5.0;
+  else speed = 1.0 * distance;
+
+  //calculate setpoint speeds in xy for the first time
+
   setpoint_speed_msg.dx = speed * (target_position.x - estimated_pose_msg.x) / distance;
   setpoint_speed_msg.dy = speed * (target_position.y - estimated_pose_msg.y) / distance;
   setpoint_speed_msg.dz = 0;
@@ -165,15 +156,22 @@ void BehaviorFollowUAV::ownRun(){
 
   std::cout << "ownRun" << std::endl;
   //calculate target position for the first time
-  target_position.x = estimated_leader_pose_msg.x + relative_target_position.x * cos(estimated_leader_pose_msg.yaw);
-  target_position.y = estimated_leader_pose_msg.y + relative_target_position.y * sin(estimated_leader_pose_msg.yaw);
+  target_position.x = estimated_leader_pose_msg.x + relative_target_position.x * cos(estimated_leader_pose_msg.yaw) + relative_target_position.y * sin(estimated_leader_pose_msg.yaw);
+  target_position.y = estimated_leader_pose_msg.y + relative_target_position.x * sin(estimated_leader_pose_msg.yaw) + relative_target_position.y * cos(estimated_leader_pose_msg.yaw);
   target_position.z = estimated_leader_pose_msg.z + relative_target_position.z;
   target_position.yaw = estimated_leader_pose_msg.yaw;
 
-  //calculate setpoint speeds for the first time
+  //calculate distance and speed
   distance = sqrt(pow(target_position.x-estimated_pose_msg.x,2)
                          + pow(target_position.y-estimated_pose_msg.y,2));
   //                       + pow(target_position.z-estimated_pose_msg.z,2));
+
+  if (distance < 0.1) speed = 0.0;
+  else if (distance > 5.0 ) speed = 5.0;
+  else speed = 1.0 * distance;
+
+  //calculate setpoint speeds in xy for the first time
+
   setpoint_speed_msg.dx = speed * (target_position.x - estimated_pose_msg.x) / distance;
   setpoint_speed_msg.dy = speed * (target_position.y - estimated_pose_msg.y) / distance;
   setpoint_speed_msg.dz = 0;

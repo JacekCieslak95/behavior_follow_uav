@@ -178,17 +178,18 @@ void BehaviorFollowUAV::ownRun(){
   droneMsgsROS::droneDYawCmd dronedYaw;
 
   if(std::abs(yaw_diff) > 0.1 && std::abs(yaw_diff) < (2*M_PI - 0.1)){
-    dronedYaw.dYawCmd = fmod((yaw_diff/M_PI + 1),2)-1;
+    dronedYaw.dYawCmd = (-1) * (fmod((yaw_diff/M_PI + 1),2)-1);
     //calculate dYaw speed
   }
   else{
     dronedYaw.dYawCmd = 0;
   }
 
+  d_yaw_pub.publish(dronedYaw);
+
   std::cout << "yaw_diff = " << yaw_diff << " dYawCmd = " << dronedYaw.dYawCmd << std::endl;
 
   //calculate setpoint speeds in xy for the first time
-
   setpoint_speed_msg.dx = speed * (target_position.x - estimated_pose_msg.x) / distance;
   setpoint_speed_msg.dy = speed * (target_position.y - estimated_pose_msg.y) / distance;
   setpoint_speed_msg.dz = 0;
@@ -199,25 +200,6 @@ void BehaviorFollowUAV::ownRun(){
   droneSpeed.dz=setpoint_speed_msg.dz;
   speed_topic_pub.publish(droneSpeed);
 
-
-/*
-  std::cout << " x: " << estimated_leader_pose_msg.x
-            << " y: " << estimated_leader_pose_msg.y
-            << " z: " << estimated_leader_pose_msg.z
-            << " yaw: " << estimated_leader_pose_msg.yaw
-            << " xt: " << target_position.x
-            << " yt: " << target_position.y
-            << " zt: " << target_position.z
-            << " yawt: " << target_position.yaw << std::endl;
-*/
-
-
-
-  /*
-   * calculate speeds based on target position
-   *
-   * send calculated speed
-   */
 }
 
 void BehaviorFollowUAV::ownStop(){

@@ -19,6 +19,7 @@
 <arg name="speed_topic"                           default="droneSpeedsRefs" />
 <arg name="drone_control_mode"                    default="droneTrajectoryController/controlMode" />
 <arg name="d_altitude"                            default="command/dAltitude" />
+<arg name="d_yaw"                                 default="command/dYaw" />
 <arg name="consult_belief"                        default="consult_belief"/>
 <arg name="behavior_rotate_start"                 default="behavior_rotate/start"/>
 <arg name="behavior_rotate_stop"                  default="behavior_rotate/stop"/>

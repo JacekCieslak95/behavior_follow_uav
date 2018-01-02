@@ -71,6 +71,7 @@ private:
   std::string speed_topic;
   std::string drone_control_mode_str;
   std::string d_altitude_str;
+  std::string d_yaw_str;
   std::string execute_query_srv;
   std::string rotation_start_srv;
   std::string rotation_stop_srv;
@@ -87,6 +88,7 @@ private:
   ros::Publisher drone_position_pub;
   ros::Publisher speed_topic_pub;
   ros::Publisher d_altitude_pub;
+  ros::Publisher d_yaw_pub;
 
   //Service Clients
   ros::ServiceClient mode_service;
@@ -112,7 +114,6 @@ private:
   float angle;
   float speed;
   float distance;
-  int state;
   int leaderID;
 
   std::tuple<bool, std::string> ownCheckSituation();

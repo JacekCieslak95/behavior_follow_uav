@@ -53,7 +53,6 @@ void BehaviorFollowUAV::ownSetUp(){
 
 void BehaviorFollowUAV::ownStart(){
   is_finished = false;
-  state = 0;
   std::cout << "ownStart" << std::endl;
   //Initialize topics
   estimated_pose_sub = node_handle.subscribe(estimated_pose_str, 1000, &BehaviorFollowUAV::estimatedPoseCallBack, this);
@@ -185,7 +184,7 @@ void BehaviorFollowUAV::ownRun(){
     dronedYaw.dYawCmd = 0;
   }
 
-  d_yaw_pub.publish(dronedYaw);
+//  d_yaw_pub.publish(dronedYaw);
 
   std::cout << "yaw_diff = " << yaw_diff << " dYawCmd = " << dronedYaw.dYawCmd << std::endl;
 
@@ -193,6 +192,7 @@ void BehaviorFollowUAV::ownRun(){
   setpoint_speed_msg.dx = speed * (target_position.x - estimated_pose_msg.x) / distance;
   setpoint_speed_msg.dy = speed * (target_position.y - estimated_pose_msg.y) / distance;
   setpoint_speed_msg.dz = 0;
+  //setpoint_speed_msg.dyaw = dronedYaw.dYawCmd;
 
   droneMsgsROS::droneSpeeds droneSpeed;
   droneSpeed.dx=setpoint_speed_msg.dx;

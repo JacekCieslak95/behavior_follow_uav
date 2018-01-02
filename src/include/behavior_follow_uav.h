@@ -114,7 +114,6 @@ private:
   float angle;
   float speed;
   float distance;
-  int state;
   int leaderID;
 
   std::tuple<bool, std::string> ownCheckSituation();

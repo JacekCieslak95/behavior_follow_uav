@@ -65,6 +65,7 @@ private:
   std::string rotation_angles_str;
   std::string controllers_str;
   std::string estimated_speed_str;
+  std::string estimated_leader_speed_str;
   std::string yaw_controller_str;
   std::string service_topic_str;
   std::string drone_position_str;
@@ -80,6 +81,7 @@ private:
   ros::Subscriber estimated_pose_sub;
   ros::Subscriber estimated_leader_pose_sub;
   ros::Subscriber estimated_speed_sub;
+  ros::Subscriber estimated_leader_speed_sub;
   ros::Subscriber rotation_angles_sub;
 
   //Publisher
@@ -102,6 +104,7 @@ private:
   droneMsgsROS::dronePose target_position;
   droneMsgsROS::dronePose relative_target_position;
   droneMsgsROS::droneSpeeds estimated_speed_msg;
+  droneMsgsROS::droneSpeeds estimated_leader_speed_msg;
   droneMsgsROS::droneSpeeds setpoint_speed_msg;
   geometry_msgs::Vector3Stamped rotation_angles_msg;
 
@@ -122,6 +125,7 @@ private:
   void estimatedPoseCallBack(const droneMsgsROS::dronePose&);
   void estimatedLeaderPoseCallBack(const droneMsgsROS::dronePose&);
   void estimatedSpeedCallback(const droneMsgsROS::droneSpeeds&);
+  void estimatedLeaderSpeedCallback(const droneMsgsROS::droneSpeeds&);
   void rotationAnglesCallback(const geometry_msgs::Vector3Stamped&);
 };
 

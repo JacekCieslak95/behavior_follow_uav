@@ -99,7 +99,8 @@ void BehaviorFollowUAV::ownStart(){
 
   estimated_leader_pose_str = std::string("/drone") + std::to_string(leaderID) + std::string("/estimated_pose");
   estimated_leader_pose_sub = node_handle.subscribe(estimated_leader_pose_str, 1000, &BehaviorFollowUAV::estimatedLeaderPoseCallBack, this);
-
+  estimated_leader_speed_str  = std::string("/drone") + std::to_string(leaderID) + std::string("/estimated_speed");
+  estimated_leader_speed_sub = node_handle.subscribe(estimated_leader_speed_str, 1000, &BehaviorFollowUAV::estimatedLeaderSpeedCallback, this);
   //calculate target position for the first time
   target_position.x = estimated_leader_pose_msg.x + relative_target_position.x * cos(estimated_leader_pose_msg.yaw);
   target_position.y = estimated_leader_pose_msg.y + relative_target_position.y * sin(estimated_leader_pose_msg.yaw);
@@ -169,8 +170,9 @@ void BehaviorFollowUAV::ownRun(){
                          + pow(target_position.z-estimated_pose_msg.z,2));
 
   if (distance < 0.1) speed = 0.0;
-  else if (distance > 5.0 ) speed = 5.0;
-  else speed = 1.0 * distance;
+  else if (distance > 5.0 ) speed = 20.0;
+  else speed = 1.5 * sqrt(pow(estimated_leader_speed_msg.dx,2)
+                    + pow(estimated_leader_speed_msg.dy,2));
 
   float current_yaw = fmod(estimated_pose_msg.yaw + 2*M_PI, 2*M_PI);
   float yaw_diff = fmod((target_position.yaw - current_yaw)+2*M_PI,2*M_PI);
@@ -243,6 +245,9 @@ std::tuple<bool,std::string> BehaviorFollowUAV::ownCheckSituation()
 //CallBacks
 void BehaviorFollowUAV::estimatedSpeedCallback(const droneMsgsROS::droneSpeeds& msg){
   estimated_speed_msg=msg;
+}
+void BehaviorFollowUAV::estimatedLeaderSpeedCallback(const droneMsgsROS::droneSpeeds& msg){
+  estimated_leader_speed_msg=msg;
 }
 void BehaviorFollowUAV::estimatedPoseCallBack(const droneMsgsROS::dronePose& msg){
   estimated_pose_msg=msg;

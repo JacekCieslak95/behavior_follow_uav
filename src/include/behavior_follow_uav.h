@@ -113,6 +113,8 @@ private:
   void ownStart();
   void ownRun();
   void ownStop();
+  float calculateDYaw();
+
 
   float angle;
   float speed;

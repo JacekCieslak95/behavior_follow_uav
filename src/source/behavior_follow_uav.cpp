@@ -88,6 +88,7 @@ void BehaviorFollowUAV::ownStart(){
     relative_target_position.x = points[0];
     relative_target_position.y = points[1];
     relative_target_position.z = points[2];
+    std::cout << relative_target_position.x << " " << relative_target_position.y << " " << relative_target_position.z << std::endl;
   }
   else{
     relative_target_position.x = -1;
@@ -95,6 +96,14 @@ void BehaviorFollowUAV::ownStart(){
     relative_target_position.z = 0;
     //setStarted(false);
     //return;
+  }
+  //get angle
+  if(config_file["angle"].IsDefined()){
+    angle=config_file["angle"].as<float>() * M_PI/180;
+  }
+  else{
+    angle=0;
+    std::cout<<"Could not read angle. Default angle="<<angle<<std::endl;
   }
 
   estimated_leader_pose_str = std::string("/drone") + std::to_string(leaderID) + std::string("/estimated_pose");
@@ -155,26 +164,38 @@ void BehaviorFollowUAV::ownStart(){
 }
 
 void BehaviorFollowUAV::ownRun(){
-
+  float relative_angle = fmod(atan2(relative_target_position.y, relative_target_position.x) + 2*M_PI, 2*M_PI);
+  float relative_distance = sqrt(pow((relative_target_position.y),2)
+                                 + pow((relative_target_position.x),2));
   droneMsgsROS::droneSpeeds droneSpeed;
-  target_position.x = estimated_leader_pose_msg.x + relative_target_position.x * cos(estimated_leader_pose_msg.yaw) + relative_target_position.y * sin(estimated_leader_pose_msg.yaw);
-  target_position.y = estimated_leader_pose_msg.y + relative_target_position.x * sin(estimated_leader_pose_msg.yaw) + relative_target_position.y * cos(estimated_leader_pose_msg.yaw);
+  //target_position.x = estimated_leader_pose_msg.x + relative_target_position.x * cos(estimated_leader_pose_msg.yaw) + relative_target_position.y * sin(estimated_leader_pose_msg.yaw);
+  //target_position.y = estimated_leader_pose_msg.y + relative_target_position.x * sin(estimated_leader_pose_msg.yaw) + relative_target_position.y * cos(estimated_leader_pose_msg.yaw);
+  float target_position_direction = fmod((estimated_leader_pose_msg.yaw + relative_angle) + 2*M_PI, 2*M_PI);
+  target_position.x = estimated_leader_pose_msg.x + relative_distance * cos(target_position_direction);
+  target_position.y = estimated_leader_pose_msg.y + relative_distance * sin(target_position_direction);
+  //target_position.y = estimated_leader_pose_msg.y + relative_target_position.x * sin(estimated_leader_pose_msg.yaw) + relative_target_position.y * cos(estimated_leader_pose_msg.yaw);
   target_position.z = estimated_leader_pose_msg.z + relative_target_position.z;
+  std::cout<< "tx =" << target_position.x << " ty =" << target_position.y << " tz =" << target_position.z  <<std::endl;
   if (target_position.z < 0.7 ) target_position.z = 0.7;
 
   float intruderDistanceXY = sqrt(pow((estimated_pose_msg.x - estimated_leader_pose_msg.x),2)
                             + pow((estimated_pose_msg.y - estimated_leader_pose_msg.y),2));
-  std::cout<< intruderDistanceXY;
-  if (intruderDistanceXY >1.5 ){
+  std::cout<< "relative_angle =" << relative_angle <<std::endl;
+  if (intruderDistanceXY >1.0 ){
     //calculate distance and speed
     distance = sqrt(pow(target_position.x-estimated_pose_msg.x,2)
                            + pow(target_position.y-estimated_pose_msg.y,2)
                            + pow(target_position.z-estimated_pose_msg.z,2));
-
+    std::cout<< "distance =" << distance <<std::endl;
+    float leaderSpeed = sqrt(pow(estimated_leader_speed_msg.dx,2)
+                             + pow(estimated_leader_speed_msg.dy,2));
     if (distance < 0.1) speed = 0.0;
     else if (distance > 5.0 ) speed = 20.0;
-    else speed = 1.5 * sqrt(pow(estimated_leader_speed_msg.dx,2)
-                      + pow(estimated_leader_speed_msg.dy,2));
+    else{
+      if(leaderSpeed>1)
+        speed = 2 * leaderSpeed;
+      else speed = 2;
+    }
 
     float current_yaw = fmod(estimated_pose_msg.yaw + 2*M_PI, 2*M_PI);
     float yaw_diff = fmod((target_position.yaw - current_yaw)+2*M_PI,2*M_PI);
@@ -192,7 +213,13 @@ void BehaviorFollowUAV::ownRun(){
 
     setpoint_speed_msg.dx = speed * (target_position.x - estimated_pose_msg.x) / distance;
     setpoint_speed_msg.dy = speed * (target_position.y - estimated_pose_msg.y) / distance;
-    setpoint_speed_msg.dz = speed * (target_position.z - estimated_pose_msg.z) / distance;
+    setpoint_speed_msg.dz = speed  * 0.2 * (target_position.z - estimated_pose_msg.z) / distance;
+/*
+    float movementYaw = atan2(target_position.y - estimated_pose_msg.y, target_position.x - estimated_pose_msg.x);
+    movementYaw = fmod((movementYaw+2*M_PI),2*M_PI);
+    setpoint_speed_msg.dx = speed * cos(movementYaw);
+    setpoint_speed_msg.dy = speed * sin(movementYaw);
+    setpoint_speed_msg.dz = speed * (target_position.z - estimated_pose_msg.z) * 0.5;*/
 
     droneSpeed.dx=setpoint_speed_msg.dx;
     droneSpeed.dy=setpoint_speed_msg.dy;
@@ -220,6 +247,8 @@ void BehaviorFollowUAV::ownRun(){
     else if (estimated_leader_speed_msg.dy < 0.1 && estimated_leader_speed_msg.dx < 0.1){
       float targetYaw = atan2(target_position.y-estimated_pose_msg.y,target_position.x-estimated_pose_msg.x);
       float intruderYaw = atan2(estimated_leader_pose_msg.y-estimated_pose_msg.y,estimated_leader_pose_msg.x-estimated_pose_msg.x);
+      targetYaw = fmod((targetYaw + 2*M_PI),2 * M_PI);
+      intruderYaw = fmod((intruderYaw + 2*M_PI),2 * M_PI);
       float movementYaw;
       if (std::abs(targetYaw - intruderYaw) < M_PI/2){
         if (targetYaw - intruderYaw > 0 ) movementYaw = targetYaw + (M_PI/2 - std::abs(targetYaw - intruderYaw));
@@ -297,7 +326,13 @@ std::tuple<bool,std::string> BehaviorFollowUAV::ownCheckSituation()
 float BehaviorFollowUAV::calculateDYaw(){
 
   float dYaw;
-  float setpoint_yaw=atan2(estimated_leader_pose_msg.y-estimated_pose_msg.y,estimated_leader_pose_msg.x-estimated_pose_msg.x);
+  float setpoint_yaw;
+  if (angle != 0){
+    setpoint_yaw = estimated_leader_pose_msg.yaw + angle;
+  }
+  else{
+    setpoint_yaw = atan2(estimated_leader_pose_msg.y-estimated_pose_msg.y,estimated_leader_pose_msg.x-estimated_pose_msg.x);
+  }
   float current_yaw = fmod(estimated_pose_msg.yaw + 2*M_PI, 2*M_PI);
   float yaw_diff = fmod((setpoint_yaw - current_yaw)+2*M_PI,2*M_PI);
 
@@ -308,6 +343,7 @@ float BehaviorFollowUAV::calculateDYaw(){
   else{
     dYaw = 0;
   }
+
   return dYaw;
 }
 

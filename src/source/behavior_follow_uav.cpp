@@ -175,18 +175,15 @@ void BehaviorFollowUAV::ownRun(){
   target_position.y = estimated_leader_pose_msg.y + relative_distance * sin(target_position_direction);
   //target_position.y = estimated_leader_pose_msg.y + relative_target_position.x * sin(estimated_leader_pose_msg.yaw) + relative_target_position.y * cos(estimated_leader_pose_msg.yaw);
   target_position.z = estimated_leader_pose_msg.z + relative_target_position.z;
-  std::cout<< "tx =" << target_position.x << " ty =" << target_position.y << " tz =" << target_position.z  <<std::endl;
   if (target_position.z < 0.7 ) target_position.z = 0.7;
 
   float intruderDistanceXY = sqrt(pow((estimated_pose_msg.x - estimated_leader_pose_msg.x),2)
                             + pow((estimated_pose_msg.y - estimated_leader_pose_msg.y),2));
-  std::cout<< "relative_angle =" << relative_angle <<std::endl;
   if (intruderDistanceXY >1.0 ){
     //calculate distance and speed
     distance = sqrt(pow(target_position.x-estimated_pose_msg.x,2)
                            + pow(target_position.y-estimated_pose_msg.y,2)
                            + pow(target_position.z-estimated_pose_msg.z,2));
-    std::cout<< "distance =" << distance <<std::endl;
     float leaderSpeed = sqrt(pow(estimated_leader_speed_msg.dx,2)
                              + pow(estimated_leader_speed_msg.dy,2));
     if (distance < 0.1) speed = 0.0;

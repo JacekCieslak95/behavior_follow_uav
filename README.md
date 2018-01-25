@@ -69,3 +69,7 @@ Jest to kąt pozycja wzgędem danego drona
     angle=x
     
 Jest to różnica pomiędzy kątem obrotu Yaw śledzonego UAV, a drona na którym funkcjonuje zachowanie. W przypadku niepodania tego argumentu dron obserwuje śledzonego UAV
+
+
+Przykład wywołania:
+`api.activateBehavior('FOLLOW_UAV', relative_position=[-1.2, 1.2,1], angle = -60, droneID=2)`

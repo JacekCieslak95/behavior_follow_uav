@@ -1,4 +1,4 @@
-# Behavior BehaviorFollowUAV
+# Behavior FollowUAV
 Paczka tworzy behavior używany przez Aerostack (oprogramowanie grupy Vision4UAV: https://github.com/Vision4UAV/Aerostack)
 Zachowanie umożliwiające podążanie za zadanym dronem (opierając się na jego pozycji).
 ### Instalacja ###

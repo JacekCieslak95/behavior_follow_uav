@@ -1,5 +1,8 @@
 # Behavior FollowUAV
-Paczka tworzy behavior używany przez Aerostack (oprogramowanie grupy Vision4UAV: https://github.com/Vision4UAV/Aerostack)
+
+Read in [English]
+
+Paczka tworzy behavior używany przez [Aerostack] (oprogramowanie grupy [Vision4UAV])
 Zachowanie umożliwiające podążanie za zadanym dronem (opierając się na jego pozycji).
 ### Instalacja ###
 1. Pliki niniejszego repozytorium należy umieścić w folderze 
@@ -73,3 +76,10 @@ Jest to różnica pomiędzy kątem obrotu Yaw śledzonego UAV, a drona na który
 
 Przykład wywołania:
 `api.activateBehavior('FOLLOW_UAV', relative_position=[-1.2, 1.2,1], angle = -60, droneID=2)`
+
+[//]: # (These are reference links used in the body of this note and get stripped out when the markdown processor does its job. There is no need to format nicely because it shouldn't be seen. Thanks SO - http://stackoverflow.com/questions/4823468/store-comments-in-markdown-syntax)
+   [Polish]: <https://github.com/JacekCieslak95/behavior_follow_uav/blob/master/README.md>
+   [English]: <https://github.com/JacekCieslak95/behavior_follow_uav/blob/master/README_en.md>
+   [Aerostack]: <https://github.com/Vision4UAV>
+   [Vision4UAV]: <https://github.com/Vision4UAV/Aerostack>
+

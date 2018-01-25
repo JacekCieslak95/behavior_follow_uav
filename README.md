@@ -48,6 +48,9 @@ Zachowanie umożliwiające podążanie za zadanym dronem (opierając się na jeg
               - argument: RELATIVE_POSITION
                 allowed_values: [-100,100]
                 dimensions: 3
+              - argument: ANGLE
+                allowed_values: [-360,360]
+                
 		    
 				
 ##### UWAGA! Wcięcia powinny być realizowane przez spacje, nie tabulatory!
@@ -62,3 +65,7 @@ Jest to numer drona, za którym dron będzie podążał
     relative_position==[x,y,z]
     
 Jest to kąt pozycja wzgędem danego drona
+    
+    angle=x
+    
+Jest to różnica pomiędzy kątem obrotu Yaw śledzonego UAV, a drona na którym funkcjonuje zachowanie. W przypadku niepodania tego argumentu dron obserwuje śledzonego UAV

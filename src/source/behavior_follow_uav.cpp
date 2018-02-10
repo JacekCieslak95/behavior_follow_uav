@@ -77,6 +77,10 @@ void BehaviorFollowUAV::ownStart(){
   //get leader ID
   if(config_file["droneID"].IsDefined()){
     leaderID=config_file["droneID"].as<int>();
+    if (leaderID == atoi(drone_id.c_str())){ //check if is not following itself
+      setStarted(false);
+      return;
+    }
   }
   else{
     setStarted(false);

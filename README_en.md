@@ -2,7 +2,7 @@
 
 Read in [Polish]
 
-This package creates behavior used by [Aerostack] (framework developed by [Vision4UAV].
+This package creates behavior used by [Aerostack] (framework developed by [Vision4UAV]).
 This behavior enables following a given drone (based on its position).
 
 ### Instalation ###

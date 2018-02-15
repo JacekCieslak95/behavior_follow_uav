@@ -191,11 +191,11 @@ void BehaviorFollowUAV::ownRun(){
     float leaderSpeed = sqrt(pow(estimated_leader_speed_msg.dx,2)
                              + pow(estimated_leader_speed_msg.dy,2));
     if (distance < 0.1) speed = 0.0;
-    else if (distance > 5.0 ) speed = 20.0;
+    else if (distance > 5.0 ) speed = 2.0;
+    else if (distance < 0.5) speed = 0.4 * distance + leaderSpeed;
     else{
-      if(leaderSpeed>1)
-        speed = 2 * leaderSpeed;
-      else speed = 2;
+      if(leaderSpeed>0.4) speed = 2 * leaderSpeed;
+      else speed = 0.4 * distance;
     }
 
     float current_yaw = fmod(estimated_pose_msg.yaw + 2*M_PI, 2*M_PI);
